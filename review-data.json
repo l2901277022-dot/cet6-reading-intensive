@@ -1,0 +1,89 @@
+{
+  "passageId": "cet6_2024_06_2_p1",
+  "originalAvailable": true,
+  "questionSource": "https://www.guojiya.cn/exam/cet6_2024_06_2",
+  "answerSource": "https://www.guojiya.cn/exam/cet6_2024_06_2/answers",
+  "note": "题干、选项及答案已按公开试卷页交叉核对；中文翻译和逐项解析为本站重新编写。",
+  "questions": [
+    {
+      "number": 46,
+      "skill": "细节理解 · 同义改写",
+      "stem": "What do we learn from the passage about young Americans of today?",
+      "translation": "关于当今美国年轻人，文章告诉了我们什么？",
+      "answer": "B",
+      "options": [
+        {"key":"A","text":"They have greater ambitions than their parents.","translation":"他们比父母更有抱负。","trap":"无中生有","analysis":"原文提到 hard work and ambition 是“美国梦”叙事中的条件，却没有比较两代人的抱负大小。把文章背景词 ambition 移到代际比较中，属于利用原文词汇添加不存在的关系。"},
+        {"key":"B","text":"They find it difficult to achieve upward mobility.","translation":"他们发现实现向上流动很困难。","trap":"正确 · 同义改写","analysis":"struggling to earn more than their parents 与 upward mobility compares unfavourably 共同说明向上流动并不容易。find it difficult to achieve 是对 struggling 与 unfavourably 的概括。"},
+        {"key":"C","text":"They have overtaken their parents in terms of earnings.","translation":"他们的收入已经超过父母。","trap":"正反颠倒","analysis":"struggle to earn more 表示正在艰难争取，不能推出已经超过。选项用 have overtaken 把未实现的困难改成已完成的结果。"},
+        {"key":"D","text":"They envy the opportunities in other industrialised nations.","translation":"他们羡慕其他工业化国家的机会。","trap":"加入态度","analysis":"原文只比较美国与其他工业化国家的向上流动性，没有描述年轻人的羡慕、失望等主观情绪。"}
+      ],
+      "reasoning": ["用 young Americans today 定位第 2 句。", "把两个并列事实合读：收入难超父辈；美国向上流动性比其他工业化国家差。", "寻找同时保留“困难”和“向上流动”两个信息的选项，B 最完整。"],
+      "evidence": [{"sentenceIndex":1,"text":"And yet, young Americans today are struggling to earn more than their parents did at the same age, and upward mobility in the US actually compares unfavourably to that of other industrialised nations.","translation":"然而，如今的美国年轻人很难在同龄时挣得比父母更多；美国的向上流动性实际上也逊于其他工业化国家。"}],
+      "boundary": "比较的是收入和社会流动机会，不是抱负或情绪；struggling 也不能读成已经成功。"
+    },
+    {
+      "number": 47,
+      "skill": "实验结论 · 同义替换",
+      "stem": "What does Kim's team find about reality TV shows in America?",
+      "translation": "Kim 的团队对美国真人秀节目得出了什么发现？",
+      "answer": "C",
+      "options": [
+        {"key":"A","text":"They reinterpret the essence of the popular rags-to-riches culture.","translation":"它们重新诠释了流行的“白手起家”文化的本质。","trap":"无中生有","analysis":"研究检验的是节目是否增强人们对美国梦的信念，没有讨论节目重新定义或重新诠释这种文化。"},
+        {"key":"B","text":"They urge people to achieve economic success through hard work.","translation":"它们敦促人们通过努力取得经济成功。","trap":"主语偷换","analysis":"文章说节目呈现普通人努力后取得成功，并不等于节目直接“敦促”观众去做。feature a story 与 urge people 是不同的行为。"},
+        {"key":"C","text":"They help strengthen people's conviction in the American Dream.","translation":"它们有助于增强人们对美国梦的信念。","trap":"正确 · 结果概括","analysis":"实验组观看“白手起家”片段后，对美国梦的信念显著更强。strengthen conviction 对应 have a significantly greater belief。"},
+        {"key":"D","text":"They feature ordinary Americans striving for social recognition.","translation":"它们以努力争取社会认可的普通美国人为主角。","trap":"概念替换","analysis":"节目中的人物追求的是 great economic success，即经济成功；social recognition 是社会认可，文章没有这个结论。"}
+      ],
+      "reasoning": ["题干问 Kim 团队的发现，应定位实验结果，而非节目背景介绍。", "识别实验组与对照组：差别是是否观看“白手起家”故事。", "结果变量是 belief in the American Dream，C 用 conviction 完成同义替换。"],
+      "evidence": [{"sentenceIndex":11,"text":"The results showed that those who'd watched a rags-to-riches clip did indeed have a significantly greater belief in the American Dream.","translation":"结果表明，看过“白手起家”片段的人对美国梦的信念确实显著更强。"}],
+      "boundary": "实验显示的是观看片段后信念上的组间差异；它不证明节目必然改变每一位观众，也不等于节目直接发出号召。"
+    },
+    {
+      "number": 48,
+      "skill": "比较关系 · 主干定位",
+      "stem": "What does the author say about news broadcasts in America?",
+      "translation": "作者对美国新闻节目作了什么陈述？",
+      "answer": "A",
+      "options": [
+        {"key":"A","text":"They attract far fewer viewers than reality TV.","translation":"它们吸引的观众远少于真人秀节目。","trap":"正确 · 比较改写","analysis":"真人秀经常属于收视最高的节目，而新闻节目获得的观众份额小得多。far fewer viewers 对应 a much smaller proportion of the viewership。"},
+        {"key":"B","text":"They are bent on reporting the dark side of life.","translation":"它们一心报道生活的阴暗面。","trap":"夸大意图","analysis":"文中只说新闻呈现更现实的经济困境，没有说新闻“执意”报道阴暗面。be bent on 强加了主观动机。"},
+        {"key":"C","text":"They stand in striking contrast with reality TV.","translation":"它们与真人秀节目形成鲜明对比。","trap":"表述过宽","analysis":"while 确实建立了对照，但本题可核实的明确结论是收视份额更小。C 没有指出比较维度，概括宽泛，信息不如 A 精确。"},
+        {"key":"D","text":"They focus on Americans' economic hardships.","translation":"它们聚焦美国人的经济困境。","trap":"以偏概全","analysis":"非限制性定语从句说新闻呈现了更现实的经济困境图景，不能由此推出其整体报道“聚焦”这一主题；题目主要考查主句中的收视比较。"}
+      ],
+      "reasoning": ["先跳过破折号内 which 引导的补充说明，抓主句。", "主干是 news broadcasts get a much smaller proportion of the viewership。", "结合 while 前的真人秀收视很高，得到新闻观众远少于真人秀，选 A。"],
+      "evidence": [{"sentenceIndex":6,"text":"And while these programmes are regularly among the most-watched shows, news broadcasts—which paint a more realistic view of the economic hardship faced by millions of Americans—get a much smaller proportion of the viewership.","translation":"虽然真人秀常跻身收视最高的节目，新闻节目却只获得小得多的观众份额；破折号内只是对新闻内容的补充说明。"}],
+      "boundary": "C 并非毫无语义依据，但它没有说明具体对比点；单选题应选择与主句明确事实一一对应的 A。"
+    },
+    {
+      "number": 49,
+      "skill": "有限推断 · 研究分组",
+      "stem": "What can we infer from the passage about Republicans in general?",
+      "translation": "关于共和党人总体上可以从文中推断出什么？",
+      "answer": "A",
+      "options": [
+        {"key":"A","text":"They believe strongly in the American Dream.","translation":"他们很相信美国梦。","trap":"正确 · 最佳有限推断","analysis":"真人秀片段的效应只在共和党参与者中显著，作者又提示其信息可能契合他们已有的社会经济信念。因此 A 是四项中最接近的推断，但应保留“可能、总体上”的边界。"},
+        {"key":"B","text":"They strive to climb the socio-economic ladder.","translation":"他们努力攀登社会经济阶梯。","trap":"从信念跳到行动","analysis":"研究测量的是 belief，并未观察参与者是否实际努力改变社会经济地位。信念强不能直接等同于采取行动。"},
+        {"key":"C","text":"They have a very strong affiliation with their party.","translation":"他们对自己的政党有很强的归属感。","trap":"术语误读","analysis":"party affiliation 在这里只是按党派归属划分参与者的变量，没有测量党派忠诚或归属感强弱。"},
+        {"key":"D","text":"They tend to watch more rags-to-riches TV shows.","translation":"他们往往观看更多“白手起家”真人秀。","trap":"缺少观看频率证据","analysis":"实验结果说明同一刺激在不同党派中的效应不同，不能推出共和党人日常观看此类节目更多。"}
+      ],
+      "reasoning": ["infer 提醒这是推断题，答案不能超过证据范围。", "效应在 Republicans 中显著，在 Democrats 中不显著。", "作者把差异与 existing socioeconomic beliefs 联系起来；四项中只有 A 保留了“信念”这一变量。"],
+      "evidence": [{"sentenceIndex":12,"text":"Interestingly, when participants were separated by party affiliation, this effect was significant among Republicans but not Democrats, suggesting that the kind of messages implicit in these TV shows may play into people's existing socioeconomic beliefs.","translation":"按党派分组后，这种效应在共和党参与者中显著、在民主党参与者中不显著，提示节目中的隐含信息可能契合人们既有的社会经济信念。"}],
+      "boundary": "A 是选项中的最佳推断，并不等于研究证明所有共和党人都强烈信奉美国梦；原文的 suggesting 与 may 都保留了不确定性。"
+    },
+    {
+      "number": 50,
+      "skill": "因果链 · 政策态度",
+      "stem": "What is stated about people who believe in upward mobility?",
+      "translation": "关于相信向上流动的人，文章陈述了什么？",
+      "answer": "D",
+      "options": [
+        {"key":"A","text":"They are likely to blame the government for their plight.","translation":"他们可能会把自己的困境归咎于政府。","trap":"无中生有","analysis":"原文没有谈到他们如何归因个人困境，更没有出现责怪政府的态度。"},
+        {"key":"B","text":"They regard political consequences as anything but trivial.","translation":"他们认为政治后果绝非微不足道。","trap":"指代错位","analysis":"结尾的 political consequences 指娱乐媒体的影响，anything but trivial 也是作者引用 Kim 的评价，不是这类人的看法。"},
+        {"key":"C","text":"They respect individuals striving to climb the social ladder.","translation":"他们尊重努力攀登社会阶梯的人。","trap":"无中生有","analysis":"文章讨论他们对努力与成功关系的误信及政策态度，没有测量他们对他人的尊敬程度。"},
+        {"key":"D","text":"They are less likely to approve of policies to fight inequality.","translation":"他们较不可能赞成对抗不平等的政策。","trap":"正确 · 同义改写","analysis":"less likely to approve 对应 less supportive；policies to fight inequality 对应 policies that could combat inequality。方向和对象完全一致。"}
+      ],
+      "reasoning": ["定位结尾 And here's the problem 后的条件句。", "if 从句给出错误信念，主句给出可能后果：支持反不平等政策的程度下降。", "核对情态边界：may be less supportive 是可能性和倾向，不是必然反对，D 最准确。"],
+      "evidence": [{"sentenceIndex":18,"text":"And here's the problem: if people mistakenly believe that hard work is all that is needed for individuals to make a better life for themselves, they may be less supportive of policies that could actually combat inequality.","translation":"问题在于：如果人们误以为只靠努力就足以改善生活，他们可能会较少支持真正能够对抗不平等的政策。"}],
+      "boundary": "原文使用 may 和 less supportive，表示支持倾向可能下降；不能扩大为必然反对所有相关政策。"
+    }
+  ]
+}
