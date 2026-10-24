@@ -9,6 +9,7 @@
       "number": 46,
       "skill": "细节理解 · 同义改写",
       "stem": "What do we learn from the passage about young Americans of today?",
+      "stemAnalysis": "What do we learn ... 是事实型细节问法，要求选择文章明确支持的信息；about young Americans of today 把对象限定为当今美国年轻人。定位后必须同时核对收入能否超过父辈以及 upward mobility 的比较结果，不能只看到 ambition 等背景词就作答。",
       "translation": "关于当今美国年轻人，文章告诉了我们什么？",
       "answer": "B",
       "options": [
@@ -25,6 +26,7 @@
       "number": 47,
       "skill": "实验结论 · 同义替换",
       "stem": "What does Kim's team find about reality TV shows in America?",
+      "stemAnalysis": "find 表明题目问研究发现，Kim's team 是研究主体，reality TV shows in America 是研究对象。作答时应定位实验结果 The results showed，而不是节目内容介绍；还要区分“节目呈现成功故事”和“观看后信念增强”这两个层次。",
       "translation": "Kim 的团队对美国真人秀节目得出了什么发现？",
       "answer": "C",
       "options": [
@@ -41,6 +43,7 @@
       "number": 48,
       "skill": "比较关系 · 主干定位",
       "stem": "What does the author say about news broadcasts in America?",
+      "stemAnalysis": "题干询问作者对美国新闻节目的明确陈述。定位 news broadcasts 后，应先抽取主句谓语 get，再确认宾语 a much smaller proportion of the viewership；破折号中的 which 从句只补充新闻内容，不能盖过主句的收视比较。",
       "translation": "作者对美国新闻节目作了什么陈述？",
       "answer": "A",
       "options": [
@@ -57,6 +60,7 @@
       "number": 49,
       "skill": "有限推断 · 研究分组",
       "stem": "What can we infer from the passage about Republicans in general?",
+      "stemAnalysis": "can we infer 提示答案来自有限推断，about Republicans in general 限定推断对象。证据只说明实验效应在共和党组显著，并以 suggesting 和 may 表示可能解释，因此答案应保留“信念倾向”，不能扩大到所有共和党人的行为、忠诚度或观看习惯。",
       "translation": "关于共和党人总体上可以从文中推断出什么？",
       "answer": "A",
       "options": [
@@ -73,6 +77,7 @@
       "number": 50,
       "skill": "因果链 · 政策态度",
       "stem": "What is stated about people who believe in upward mobility?",
+      "stemAnalysis": "What is stated 要求复述原文明确信息；people who believe in upward mobility 对应结尾条件句中相信努力足以改善生活的人。需要从 if 条件读到主句结果，并保留 may be less supportive 的可能性与程度，不能改写成必然反对。",
       "translation": "关于相信向上流动的人，文章陈述了什么？",
       "answer": "D",
       "options": [

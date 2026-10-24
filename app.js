@@ -64,7 +64,10 @@ let currentWord = null;
 let currentSentence = null;
 let panel = 'word';
 let popoverTimer;
+let wordHoverTimer;
 let selectionTimer;
+let activeWordNode = null;
+let formLemmaMap = new Map();
 
 function passageLabel(p){return `${p.year}.${String(p.month).padStart(2,'0')} · 第${p.set}套 · Passage ${p.number===1?'One':'Two'}`}
 function editionLabel(p){return `${p.year}.${String(p.month).padStart(2,'0')} · 第${p.set}套`}
@@ -113,7 +116,7 @@ function renderPassage(){
   $('#next-passage').disabled=currentIndex===archive.passages.length-1;
   $('#review-section').hidden=p.id!==TARGET;
   if(p.id===TARGET)renderTargetReview();
-  currentSentence=null;currentWord=null;panel='word';updateInspectorTabs();renderInspector();
+  clearTimeout(wordHoverTimer);activeWordNode=null;currentSentence=null;currentWord=null;panel='word';updateInspectorTabs();renderInspector();
   renderLibrary();
   closeLibrary();
 }
@@ -124,10 +127,25 @@ function renderTargetReview(){
   $('#review-list').innerHTML=renderReview(TARGET);
 }
 
-function wordData(key,surface,pos,sentenceIndex){
+function buildFormLemmaMap(){
+  const map=new Map();
+  const add=(form,lemma)=>{const key=String(form||'').toLowerCase().replaceAll('’',"'");if(key&&!map.has(key))map.set(key,lemma)};
+  for(const [lemma,entry] of Object.entries(archive.dictionary)){add(lemma,lemma);for(const form of entry.forms||[])add(form.value,lemma)}
+  for(const [lemma,item] of Object.entries(fullFrequency.frequency)){add(lemma,lemma);for(const form of item.forms||[])add(form.form,lemma)}
+  formLemmaMap=map;
+}
+
+function lemmaForSurface(surface){
+  const value=String(surface||'').toLowerCase().replaceAll('’',"'");
+  const bare=value.replace(/'s$/,'');
+  const candidates=[value,bare,bare.replace(/ies$/,'y'),bare.replace(/es$/,''),bare.replace(/s$/,''),bare.replace(/ing$/,''),bare.replace(/ing$/,'e'),bare.replace(/ed$/,''),bare.replace(/ed$/,'e')];
+  return candidates.map(item=>formLemmaMap.get(item)).find(Boolean)||bare;
+}
+
+function wordData(key,surface,pos,sentenceIndex,context=''){
   const entry=archive.dictionary[key]||archive.dictionary[surface.toLowerCase()];
   const freq=fullFrequency?.frequency?.[key]||archive.frequency[key]||{papers:0,occurrences:0,hits:[],forms:[]};
-  return {key,surface,pos,sentenceIndex,entry,freq};
+  return {key,surface,pos,sentenceIndex,entry,freq,context};
 }
 
 function phraseAssociations(key){
@@ -193,14 +211,14 @@ function sourceHits(freq){
 
 function fullWordCard(){
   if(!currentWord)return `<div class="empty-panel"><div class="empty-illustration">Aa</div><span class="panel-kicker">WORD INSPECTOR</span><h2>把鼠标移到单词上</h2><p>这里会显示本句词性、不同义项、词形变化、词汇联想、文中搭配，以及 2022–2026 年整套真题词频。</p><div class="empty-example">试试正文中的 <b>mobility</b>、<b>belief</b> 或任意其他词。</div></div>`;
-  const {key,surface,pos,sentenceIndex,entry,freq}=currentWord;
-  const sentence=article().sentences[sentenceIndex]?.text||'';
+  const {key,surface,pos,sentenceIndex,entry,freq,context}=currentWord;
+  const sentence=context||article().sentences[sentenceIndex]?.text||'';
   const note=article().id===TARGET?curatedWordMap[key]:null;
   const definitions=entry?.definitions||[];
   const forms=entry?.forms||[];
   const domainMeanings=entry?.domainMeanings||[];
   const phrases=phraseAssociations(key);
-  return `<div class="word-panel"><span class="panel-kicker">WORD INSPECTOR</span><h2>${escapeHTML(surface)}</h2>${surface.toLowerCase()!==key?`<div class="lemma-line">词元：<strong>${escapeHTML(key)}</strong></div>`:''}<div class="pronunciation-row"><span class="phonetic">${entry?.phonetic?`/${escapeHTML(entry.phonetic)}/`:'音标暂缺'}</span>${speakerButton(surface)}</div><div class="context-pos">本句词性 <strong>${escapeHTML(posChinese[pos]||pos||'待辨认')}</strong></div><div class="context-example"><b>文中原句</b><p>${escapeHTML(sentence)}</p></div>${note?`<div class="study-notes"><h3>本篇怎么理解</h3><p>${escapeHTML(note.context)}</p><dl><dt>重要搭配</dt><dd>${escapeHTML(note.collocation)}</dd><dt>易混辨析</dt><dd>${escapeHTML(note.confusion)}</dd><dt>本题考点</dt><dd>${escapeHTML(note.exam)}</dd></dl><div class="note-example"><b>例句</b> ${escapeHTML(note.example)}</div></div>`:''}<div class="panel-rule"></div><h3>中文释义 · 按本句词性优先</h3><div class="meanings">${meaningItems(entry,pos)}</div>${familyCards(key)}${forms.length?`<div class="word-forms"><h3>语法词形变化</h3><p>这些形式保留同一词元，括号内说明变化后的语法用途。</p><div>${forms.map(form=>`<span><small>${escapeHTML(form.label)}</small>${escapeHTML(form.value)}</span>`).join('')}</div></div>`:''}${phrases.length?`<div class="word-phrases"><h3>文中搭配与词组</h3>${phrases.map(phrase=>`<span>${escapeHTML(phrase)}</span>`).join('')}</div>`:''}${definitions.length?`<details class="extra-detail"><summary>英文释义 · ${definitions.length} 条</summary><div class="english-senses">${definitions.map(line=>`<p>${escapeHTML(line)}</p>`).join('')}</div></details>`:''}${domainMeanings.length?`<details class="extra-detail"><summary>领域释义 · ${domainMeanings.length} 条</summary><div class="english-senses">${domainMeanings.map(line=>`<p>${escapeHTML(line)}</p>`).join('')}</div></details>`:''}<div class="frequency-card"><div class="frequency-heading"><span>整套真题词频</span><strong>${freq.papers}<small> / ${fullFrequency?.examCount||archive.examCount} 套</small></strong></div><p>2022–2026 年六级整卷可见英语；合并同一词元的词形，共检出 ${freq.occurrences} 次。听力含题干与选项，不含录音原文。</p>${yearBars(freq)}${sourceHits(freq)}</div><p class="dictionary-credit">中英释义与词形来自 <a href="https://github.com/skywind3000/ECDICT" target="_blank" rel="noopener noreferrer">ECDICT ↗</a>；英汉条目独立列出，并非逐条对译。朗读由浏览器语音功能生成。自动识别的词性请结合原句判断。</p></div>`;
+  return `<div class="word-panel"><span class="panel-kicker">WORD INSPECTOR</span><h2>${escapeHTML(surface)}</h2>${surface.toLowerCase()!==key?`<div class="lemma-line">词元：<strong>${escapeHTML(key)}</strong></div>`:''}<div class="pronunciation-row"><span class="phonetic">${entry?.phonetic?`/${escapeHTML(entry.phonetic)}/`:'音标暂缺'}</span>${speakerButton(surface)}</div><div class="context-pos">${context?'题目／选项词汇':'本句词性'} <strong>${escapeHTML(context?'点击或停留后固定显示':posChinese[pos]||pos||'待辨认')}</strong></div><div class="context-example"><b>${context?'题目语境':'文中原句'}</b><p>${escapeHTML(sentence)}</p></div>${note?`<div class="study-notes"><h3>本篇怎么理解</h3><p>${escapeHTML(note.context)}</p><dl><dt>重要搭配</dt><dd>${escapeHTML(note.collocation)}</dd><dt>易混辨析</dt><dd>${escapeHTML(note.confusion)}</dd><dt>本题考点</dt><dd>${escapeHTML(note.exam)}</dd></dl><div class="note-example"><b>例句</b> ${escapeHTML(note.example)}</div></div>`:''}<div class="panel-rule"></div><h3>中文释义${pos?' · 按本句词性优先':''}</h3><div class="meanings">${meaningItems(entry,pos)}</div>${familyCards(key)}${forms.length?`<div class="word-forms"><h3>语法词形变化</h3><p>这些形式保留同一词元，括号内说明变化后的语法用途。</p><div>${forms.map(form=>`<span><small>${escapeHTML(form.label)}</small>${escapeHTML(form.value)}</span>`).join('')}</div></div>`:''}${phrases.length?`<div class="word-phrases"><h3>文中搭配与词组</h3>${phrases.map(phrase=>`<span>${escapeHTML(phrase)}</span>`).join('')}</div>`:''}${definitions.length?`<details class="extra-detail"><summary>英文释义 · ${definitions.length} 条</summary><div class="english-senses">${definitions.map(line=>`<p>${escapeHTML(line)}</p>`).join('')}</div></details>`:''}${domainMeanings.length?`<details class="extra-detail"><summary>领域释义 · ${domainMeanings.length} 条</summary><div class="english-senses">${domainMeanings.map(line=>`<p>${escapeHTML(line)}</p>`).join('')}</div></details>`:''}<div class="frequency-card"><div class="frequency-heading"><span>整套真题词频</span><strong>${freq.papers}<small> / ${fullFrequency?.examCount||archive.examCount} 套</small></strong></div><p>2022–2026 年六级整卷可见英语；合并同一词元的词形，共检出 ${freq.occurrences} 次。听力含题干与选项，不含录音原文。</p>${yearBars(freq)}${sourceHits(freq)}</div><p class="dictionary-credit">中英释义与词形来自 <a href="https://github.com/skywind3000/ECDICT" target="_blank" rel="noopener noreferrer">ECDICT ↗</a>；英汉条目独立列出，并非逐条对译。朗读由浏览器语音功能生成。自动识别的词性请结合原句判断。</p></div>`;
 }
 
 function grammarCard(){
@@ -214,20 +232,33 @@ function renderInspector(){const content=panel==='word'?fullWordCard():grammarCa
 function showMobileDetail(){if(window.innerWidth<=1050){$('#mobile-detail-content').innerHTML=panel==='word'?fullWordCard():grammarCard();if(!$('#mobile-detail').open)$('#mobile-detail').showModal()}}
 
 function hoverWord(word,event){
-  clearTimeout(popoverTimer);
-  const key=word.dataset.lemma;currentWord=wordData(key,word.dataset.surface,word.dataset.pos,Number(word.closest('.sentence').dataset.sentence));
+  clearTimeout(wordHoverTimer);clearTimeout(popoverTimer);
+  document.querySelectorAll('.active-word').forEach(node=>node.classList.remove('active-word'));
+  activeWordNode=word;word.classList.add('active-word');
+  const sentenceNode=word.closest('.sentence');
+  const context=word.classList.contains('review-word')?word.closest('[lang="en"]')?.textContent.trim()||'':'';
+  const surface=word.dataset.surface||word.textContent;
+  const key=word.dataset.lemma||lemmaForSurface(surface);
+  currentWord=wordData(key,surface,word.dataset.pos||'',sentenceNode?Number(sentenceNode.dataset.sentence):-1,context);
   panel='word';updateInspectorTabs();renderInspector();
   if(event.pointerType==='touch'||window.innerWidth<=1050)return;
   const d=currentWord;
   const lines=[...(d.entry?.meanings||[])].sort((a,b)=>Number(relevantMeaning(b,d.pos))-Number(relevantMeaning(a,d.pos))).slice(0,3);
   const box=$('#word-popover');
-  box.innerHTML=`<div class="popover-word">${escapeHTML(d.surface)}</div><div class="popover-pronunciation"><span>${d.entry?.phonetic?`/${escapeHTML(d.entry.phonetic)}/`:'音标暂缺'}</span>${speakerButton(d.surface)}</div><div class="popover-pos">本句：${escapeHTML(posChinese[d.pos]||d.pos)}</div><div class="popover-meanings">${lines.map(x=>`<p>${escapeHTML(x)}</p>`).join('')||'<p>暂未收录释义</p>'}</div><div class="popover-frequency">近五年整卷：<b>${d.freq.papers}/${fullFrequency?.examCount||archive.examCount} 套</b></div><div class="popover-more">详细释义与词汇联想见右侧词卡 →</div>`;
+  box.innerHTML=`<div class="popover-word">${escapeHTML(d.surface)}</div><div class="popover-pronunciation"><span>${d.entry?.phonetic?`/${escapeHTML(d.entry.phonetic)}/`:'音标暂缺'}</span>${speakerButton(d.surface)}</div><div class="popover-pos">${d.context?'题目／选项词汇':`本句：${escapeHTML(posChinese[d.pos]||d.pos)}`}</div><div class="popover-meanings">${lines.map(x=>`<p>${escapeHTML(x)}</p>`).join('')||'<p>暂未收录释义</p>'}</div><div class="popover-frequency">近五年整卷：<b>${d.freq.papers}/${fullFrequency?.examCount||archive.examCount} 套</b></div><div class="popover-more">详细释义与词汇联想见右侧词卡 →</div>`;
   box.hidden=false;
   const rect=word.getBoundingClientRect();
   const left=Math.min(Math.max(12,rect.left),window.innerWidth-296);
   let top=rect.bottom+9;
   if(top+box.offsetHeight>window.innerHeight-12)top=Math.max(12,rect.top-box.offsetHeight-9);
   box.style.left=`${left}px`;box.style.top=`${top}px`;
+}
+
+function scheduleWord(word,event){
+  clearTimeout(wordHoverTimer);
+  if(word===activeWordNode)return;
+  const delay=currentWord?360:140;
+  wordHoverTimer=setTimeout(()=>hoverWord(word,event),delay);
 }
 
 function hidePopover(){popoverTimer=setTimeout(()=>{$('#word-popover').hidden=true},120)}
@@ -257,14 +288,14 @@ function renderMethod(){
 
 function closeLibrary(){document.body.classList.remove('library-open');$('#mobile-library-button').setAttribute('aria-expanded','false')}
 
-document.addEventListener('pointerover',event=>{const word=event.target.closest('.word');if(word&&$('#passage-body').contains(word))hoverWord(word,event)});
-document.addEventListener('pointerout',event=>{if(event.target.closest('.word'))hidePopover()});
+document.addEventListener('pointerover',event=>{const word=event.target.closest('.word,.review-word');if(word)scheduleWord(word,event)});
+document.addEventListener('pointerout',event=>{const word=event.target.closest('.word,.review-word');if(word&&!word.contains(event.relatedTarget)){clearTimeout(wordHoverTimer);hidePopover()}});
 document.addEventListener('click',event=>{
   if(handleReviewClick(event)||handleGrammarClick(event))return;
   const speaker=event.target.closest('[data-speak]');if(speaker){event.preventDefault();speakWord(speaker.dataset.speak);return}
   const nav=event.target.closest('[data-passage]');if(nav){choosePassage(nav.dataset.passage);return}
   const translation=event.target.closest('[data-translation]');if(translation){const content=$(`#translation-${translation.dataset.translation}`);const open=content.hidden;content.hidden=!open;translation.setAttribute('aria-expanded',String(open));translation.innerHTML=`${open?'收起译文':'查看译文'} <span aria-hidden="true">${open?'⌃':'⌄'}</span>`;return}
-  const word=event.target.closest('.word');if(word){hoverWord(word,{pointerType:window.innerWidth<=1050?'touch':'mouse'});showMobileDetail();return}
+  const word=event.target.closest('.word,.review-word');if(word){hoverWord(word,{pointerType:window.innerWidth<=1050?'touch':'mouse'});showMobileDetail();return}
   const jump=event.target.closest('[data-jump-sentence]');if(jump){const index=Number(jump.dataset.jumpSentence);const node=$(`#sentence-${index}`);node?.scrollIntoView({behavior:'smooth',block:'center'});selectSentence(index);return}
   const sentence=event.target.closest('.sentence');if(sentence&&$('#passage-body').contains(sentence)&&!window.getSelection()?.toString().trim()){selectSentence(Number(sentence.dataset.sentence));return}
 });
@@ -273,8 +304,9 @@ $('#passage-body').addEventListener('mouseup',()=>setTimeout(selectedText,0));
 $('#passage-body').addEventListener('touchend',()=>setTimeout(selectedText,180));
 $('#passage-body').addEventListener('keyup',event=>{if(event.key==='Enter'||event.key===' ')return;setTimeout(selectedText,0)});
 document.addEventListener('selectionchange',()=>{clearTimeout(selectionTimer);selectionTimer=setTimeout(selectedText,240)});
-$('#passage-body').addEventListener('keydown',event=>{if((event.key==='Enter'||event.key===' ')&&event.target.classList.contains('word')){event.preventDefault();hoverWord(event.target,{pointerType:'keyboard'});showMobileDetail()}});
-$('#word-popover').addEventListener('pointerenter',()=>clearTimeout(popoverTimer));
+document.addEventListener('keydown',event=>{if((event.key==='Enter'||event.key===' ')&&event.target.matches('.word,.review-word')){event.preventDefault();hoverWord(event.target,{pointerType:'keyboard'});showMobileDetail()}});
+$('.inspector').addEventListener('pointerenter',()=>{clearTimeout(wordHoverTimer);clearTimeout(popoverTimer);$('#word-popover').hidden=true});
+$('#word-popover').addEventListener('pointerenter',()=>{clearTimeout(wordHoverTimer);clearTimeout(popoverTimer)});
 $('#word-popover').addEventListener('pointerleave',hidePopover);
 $('#previous-passage').addEventListener('click',()=>choosePassage(archive.passages[currentIndex-1]?.id));
 $('#next-passage').addEventListener('click',()=>choosePassage(archive.passages[currentIndex+1]?.id));
@@ -293,6 +325,7 @@ loadGrammarData().then(()=>{
 
 Promise.all([fetch('./corpus.json').then(response=>{if(!response.ok)throw new Error('语料加载失败');return response.json()}),fetch('./frequency-full.json').then(response=>{if(!response.ok)throw new Error('整卷词频加载失败');return response.json()}),initReview()]).then(([data,frequency])=>{
   archive=data;fullFrequency=frequency;
+  buildFormLemmaMap();
   $('#library-count').textContent=`${data.examCount} 套 · ${data.passageCount} 篇`;
   const remembered=(()=>{try{return localStorage.getItem(PASSAGE_KEY)}catch{return null}})();
   const initial=data.passages.findIndex(p=>p.id===(remembered||TARGET));
