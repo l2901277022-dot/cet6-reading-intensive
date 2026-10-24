@@ -285,7 +285,13 @@ $('#method-close').addEventListener('click',()=>$('#method-dialog').close());
 $('#mobile-detail-close').addEventListener('click',()=>$('#mobile-detail').close());
 for(const dialog of document.querySelectorAll('dialog'))dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()});
 
-Promise.all([fetch('./corpus.json').then(response=>{if(!response.ok)throw new Error('语料加载失败');return response.json()}),fetch('./frequency-full.json').then(response=>{if(!response.ok)throw new Error('整卷词频加载失败');return response.json()}),initReview(),loadGrammarData()]).then(([data,frequency])=>{
+loadGrammarData().then(()=>{
+  if(!archive)return;
+  renderMethod();
+  if(panel==='grammar'&&currentSentence)renderInspector();
+}).catch(error=>console.error('句法资料加载失败',error));
+
+Promise.all([fetch('./corpus.json').then(response=>{if(!response.ok)throw new Error('语料加载失败');return response.json()}),fetch('./frequency-full.json').then(response=>{if(!response.ok)throw new Error('整卷词频加载失败');return response.json()}),initReview()]).then(([data,frequency])=>{
   archive=data;fullFrequency=frequency;
   $('#library-count').textContent=`${data.examCount} 套 · ${data.passageCount} 篇`;
   const remembered=(()=>{try{return localStorage.getItem(PASSAGE_KEY)}catch{return null}})();
