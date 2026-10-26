@@ -3,6 +3,7 @@ import {loadGrammarData, renderInteractiveGrammar, handleGrammarClick, grammarMe
 import {initListening} from './listening.js';
 
 const TARGET = 'cet6_2024_06_2_p1';
+const LAST_PASSAGE_KEY = 'cet6-section-c-last-passage-v2';
 const $ = selector => document.querySelector(selector);
 const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const posChinese = {NOUN:'名词',VERB:'动词',ADJ:'形容词',ADV:'副词',PROPN:'专有名词',PRON:'代词',ADP:'介词',DET:'限定词',AUX:'助动词',CCONJ:'并列连词',SCONJ:'从属连词',NUM:'数词',PART:'小品词',INTJ:'感叹词'};
@@ -115,14 +116,21 @@ function renderPassage(){
   $('#passage-body').innerHTML=grouping(p).map(([from,to],i)=>`<section class="reading-block"><div class="block-number">${String(i+1).padStart(2,'0')}</div><div class="reading-content"><p>${p.sentences.slice(from,to).map((s,j)=>renderSentence(s,from+j)).join('')}</p><button class="translation-toggle" type="button" data-translation="${i}" aria-expanded="false" aria-controls="translation-${i}">查看译文 <span aria-hidden="true">⌄</span></button><div class="paragraph-translation" id="translation-${i}" hidden><span>第 ${i+1} 段 · ${translationLabel}</span><p>${escapeHTML(p.paragraphTranslations?.[i]||'译文暂缺')}</p></div></div></section>`).join('');
   $('#previous-passage').disabled=currentIndex===0;
   $('#next-passage').disabled=currentIndex===archive.passages.length-1;
-  $('#review-section').hidden=p.id!==TARGET;
-  if(p.id===TARGET)renderTargetReview();
+  $('#review-edition').textContent=`${editionLabel(p)} · ${p.number===1?'46–50':'51–55'}`;
+  $('#review-section').hidden=false;
+  renderCurrentReview();
   clearTimeout(wordHoverTimer);activeWordNode=null;currentSentence=null;currentWord=null;panel='word';updateInspectorTabs();renderInspector();
   renderLibrary();
   closeLibrary();
 }
 
-function choosePassage(id){const index=archive.passages.findIndex(p=>p.id===id);if(index<0)return;currentIndex=index;renderPassage();setStudyMode('reading');window.scrollTo({top:0,behavior:'smooth'})}
+function choosePassage(id){
+  const index=archive.passages.findIndex(p=>p.id===id);if(index<0)return;
+  currentIndex=index;
+  localStorage.setItem(LAST_PASSAGE_KEY,id);
+  const url=new URL(location.href);url.searchParams.set('passage',id);url.hash='';history.replaceState(null,'',url);
+  renderPassage();setStudyMode('reading');window.scrollTo({top:0,behavior:'smooth'});
+}
 
 async function setStudyMode(mode){
   const listening=mode==='listening';
@@ -138,8 +146,8 @@ async function setStudyMode(mode){
   closeLibrary();
 }
 
-function renderTargetReview(){
-  $('#review-list').innerHTML=renderReview(TARGET);
+function renderCurrentReview(){
+  $('#review-list').innerHTML=renderReview(article()?.id);
 }
 
 function buildFormLemmaMap(){
@@ -310,7 +318,7 @@ document.addEventListener('click',event=>{
   const speaker=event.target.closest('[data-speak]');if(speaker){event.preventDefault();speakWord(speaker.dataset.speak);return}
   const nav=event.target.closest('[data-passage]');if(nav){choosePassage(nav.dataset.passage);return}
   const translation=event.target.closest('[data-translation]');if(translation){const content=$(`#translation-${translation.dataset.translation}`);const open=content.hidden;content.hidden=!open;translation.setAttribute('aria-expanded',String(open));translation.innerHTML=`${open?'收起译文':'查看译文'} <span aria-hidden="true">${open?'⌃':'⌄'}</span>`;return}
-  const word=event.target.closest('.word,.review-word');if(word){hoverWord(word,{pointerType:window.innerWidth<=1050?'touch':'mouse'});showMobileDetail();return}
+  const word=event.target.closest('.word,.review-word');if(word){if(word.closest('.review-choice'))event.preventDefault();hoverWord(word,{pointerType:window.innerWidth<=1050?'touch':'mouse'});showMobileDetail();return}
   const jump=event.target.closest('[data-jump-sentence]');if(jump){const index=Number(jump.dataset.jumpSentence);const node=$(`#sentence-${index}`);node?.scrollIntoView({behavior:'smooth',block:'center'});selectSentence(index);return}
   const sentence=event.target.closest('.sentence');if(sentence&&$('#passage-body').contains(sentence)&&!window.getSelection()?.toString().trim()){selectSentence(Number(sentence.dataset.sentence));return}
 });
@@ -339,14 +347,17 @@ loadGrammarData().then(()=>{
   if(panel==='grammar'&&currentSentence)renderInspector();
 }).catch(error=>console.error('句法资料加载失败',error));
 
-const reviewReady=initReview().then(()=>{renderTargetReview();$('#review-section').hidden=false}).catch(error=>{$('#review-section').hidden=false;$('#review-list').innerHTML=`<div class="load-error">题目加载失败：${escapeHTML(error.message)}。请刷新页面重试。</div>`;throw error});
+const reviewReady=initReview();
 
 Promise.all([fetch('./corpus.json').then(response=>{if(!response.ok)throw new Error('语料加载失败');return response.json()}),fetch('./frequency-full.json').then(response=>{if(!response.ok)throw new Error('整卷词频加载失败');return response.json()}),reviewReady]).then(([data,frequency])=>{
   archive=data;fullFrequency=frequency;
   buildFormLemmaMap();
   $('#library-count').textContent=`${data.examCount} 套 · ${data.passageCount} 篇`;
-  const initial=data.passages.findIndex(p=>p.id===TARGET);
-  currentIndex=initial>=0?initial:0;
+  const requested=new URLSearchParams(location.search).get('passage');
+  const remembered=localStorage.getItem(LAST_PASSAGE_KEY);
+  const initial=data.passages.findIndex(p=>p.id===(requested||remembered||TARGET));
+  currentIndex=initial>=0?initial:data.passages.findIndex(p=>p.id===TARGET);
   renderPassage();renderMethod();
   if(location.hash==='#listening')setStudyMode('listening');
+  else if(location.hash==='#review-section')requestAnimationFrame(()=>$('#review-section').scrollIntoView());
 }).catch(error=>{$('#passage-body').innerHTML=`<div class="load-error">资料加载失败：${escapeHTML(error.message)}。请刷新页面重试。</div>`});
