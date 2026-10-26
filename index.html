@@ -4,27 +4,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#173348">
-  <meta name="description" content="2022–2026 年英语六级 Section C 阅读精读：整套真题词频、词汇联想、真题订正和交互式句法分段。">
-  <title>六级阅读精读台 · Section C</title>
+  <meta name="description" content="英语六级阅读与听力精读：整套真题词频、词汇联想、题目解析、听力原文与译文。">
+  <title>六级精读台 · 阅读与听力</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./review.css">
   <link rel="stylesheet" href="./grammar.css">
+  <link rel="stylesheet" href="./listening.css">
 </head>
 <body>
   <a class="skip-link" href="#passage-body">跳到阅读正文</a>
   <div class="app-shell">
     <aside class="library" aria-label="历年真题目录">
-      <div class="brand"><span class="brand-mark">C<span>6</span></span><div><strong>六级阅读精读台</strong><small>SECTION C · READING LAB</small></div></div>
+      <div class="brand"><span class="brand-mark">C<span>6</span></span><div><strong>六级精读台</strong><small>READING · LISTENING LAB</small></div></div>
       <div class="library-heading"><span>真题书架</span><small id="library-count">29 套 · 58 篇</small></div>
       <nav id="exam-nav" class="exam-nav" aria-label="选择年份、试卷和文章"></nav>
       <div class="library-footer"><button id="method-button" class="quiet-button">资料与统计口径 ↗</button><p>2022—2026 · Section C<br>阅读原文与词频仅供个人复习</p></div>
     </aside>
 
     <div class="main-area">
-      <header class="topbar"><div class="mobile-brand">六级阅读精读台</div><div class="breadcrumb">历年真题 <span>/</span> Section C <span>/</span> <strong id="breadcrumb-current">加载中</strong></div><button id="mobile-library-button" class="mobile-library-button" aria-expanded="false" aria-controls="exam-nav">选择试卷 ☰</button><div class="topbar-meta">SELECT · HOVER · UNDERSTAND</div></header>
+      <header class="topbar"><div class="mobile-brand">六级精读台</div><div class="breadcrumb">历年真题 <span>/</span> <strong id="breadcrumb-current">加载中</strong></div><div class="study-modes" aria-label="学习模块"><button type="button" data-study-mode="reading" class="active">阅读</button><button type="button" data-study-mode="listening">听力</button></div><button id="mobile-library-button" class="mobile-library-button" aria-expanded="false" aria-controls="exam-nav">选择试卷 ☰</button><div class="topbar-meta">SELECT · HOVER · UNDERSTAND</div></header>
       <div class="workspace">
         <main class="reader" id="main">
           <section class="reader-intro" aria-labelledby="reader-title">
@@ -37,6 +38,7 @@
           <div class="passage-end"><span>END OF PASSAGE</span><div><button id="previous-passage" class="outline-button">← 上一篇</button><button id="next-passage" class="solid-button">下一篇 →</button></div></div>
           <section id="review-section" class="review-section" hidden><div class="section-heading"><span>2024.06 · 第二套 · 46–50</span><h2>本篇真题订正</h2><p>原题和四个选项完整呈现；翻译与详细逐项解析可分别展开。</p></div><div id="review-list"></div></section>
           <footer class="content-footer">原文来自页面所链出的公开真题资料；英汉词义据 ECDICT 整理。句法为自动分析，复杂句请结合语境复核。<a href="./ECDICT-LICENSE.txt" target="_blank" rel="noopener noreferrer">ECDICT 许可</a></footer>
+          <section id="listening-content" class="listening-content" hidden aria-label="六级听力精听"></section>
         </main>
 
         <aside class="inspector" aria-label="词汇与句法分析">

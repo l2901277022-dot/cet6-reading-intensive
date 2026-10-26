@@ -1,5 +1,6 @@
 import {initReview, renderReview, handleReviewClick, handleReviewChange} from './review.js';
 import {loadGrammarData, renderInteractiveGrammar, handleGrammarClick, grammarMethod} from './grammar.js';
+import {initListening} from './listening.js';
 
 const TARGET = 'cet6_2024_06_2_p1';
 const $ = selector => document.querySelector(selector);
@@ -67,6 +68,7 @@ let wordHoverTimer;
 let selectionTimer;
 let activeWordNode = null;
 let formLemmaMap = new Map();
+let listeningReady;
 
 function passageLabel(p){return `${p.year}.${String(p.month).padStart(2,'0')} · 第${p.set}套 · Passage ${p.number===1?'One':'Two'}`}
 function editionLabel(p){return `${p.year}.${String(p.month).padStart(2,'0')} · 第${p.set}套`}
@@ -120,7 +122,21 @@ function renderPassage(){
   closeLibrary();
 }
 
-function choosePassage(id){const index=archive.passages.findIndex(p=>p.id===id);if(index<0)return;currentIndex=index;renderPassage();window.scrollTo({top:0,behavior:'smooth'})}
+function choosePassage(id){const index=archive.passages.findIndex(p=>p.id===id);if(index<0)return;currentIndex=index;renderPassage();setStudyMode('reading');window.scrollTo({top:0,behavior:'smooth'})}
+
+async function setStudyMode(mode){
+  const listening=mode==='listening';
+  document.body.classList.toggle('listening-mode',listening);
+  $('#listening-content').hidden=!listening;
+  document.querySelectorAll('[data-study-mode]').forEach(button=>button.classList.toggle('active',button.dataset.studyMode===mode));
+  $('#breadcrumb-current').textContent=listening?'2024.06 · 第二套 · 听力':article()?passageLabel(article()):'加载中';
+  if(listening){
+    history.replaceState(null,'','#listening');
+    if(!listeningReady)listeningReady=initListening($('#listening-content')).catch(error=>{$('#listening-content').innerHTML=`<div class="load-error">${escapeHTML(error.message)}。请刷新页面重试。</div>`;listeningReady=null});
+    await listeningReady;
+  }else if(location.hash==='#listening')history.replaceState(null,'',location.pathname+location.search);
+  closeLibrary();
+}
 
 function renderTargetReview(){
   $('#review-list').innerHTML=renderReview(TARGET);
@@ -299,6 +315,7 @@ document.addEventListener('click',event=>{
   const sentence=event.target.closest('.sentence');if(sentence&&$('#passage-body').contains(sentence)&&!window.getSelection()?.toString().trim()){selectSentence(Number(sentence.dataset.sentence));return}
 });
 document.addEventListener('change',handleReviewChange);
+document.querySelectorAll('[data-study-mode]').forEach(button=>button.addEventListener('click',()=>{setStudyMode(button.dataset.studyMode);window.scrollTo({top:0,behavior:'smooth'})}));
 $('#passage-body').addEventListener('mouseup',()=>setTimeout(selectedText,0));
 $('#passage-body').addEventListener('touchend',()=>setTimeout(selectedText,180));
 $('#passage-body').addEventListener('keyup',event=>{if(event.key==='Enter'||event.key===' ')return;setTimeout(selectedText,0)});
@@ -331,4 +348,5 @@ Promise.all([fetch('./corpus.json').then(response=>{if(!response.ok)throw new Er
   const initial=data.passages.findIndex(p=>p.id===TARGET);
   currentIndex=initial>=0?initial:0;
   renderPassage();renderMethod();
+  if(location.hash==='#listening')setStudyMode('listening');
 }).catch(error=>{$('#passage-body').innerHTML=`<div class="load-error">资料加载失败：${escapeHTML(error.message)}。请刷新页面重试。</div>`});
