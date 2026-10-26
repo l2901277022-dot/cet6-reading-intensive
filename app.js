@@ -2,7 +2,6 @@ import {initReview, renderReview, handleReviewClick, handleReviewChange} from '.
 import {loadGrammarData, renderInteractiveGrammar, handleGrammarClick, grammarMethod} from './grammar.js';
 
 const TARGET = 'cet6_2024_06_2_p1';
-const PASSAGE_KEY = 'cet6-section-c-last-passage-v2';
 const $ = selector => document.querySelector(selector);
 const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const posChinese = {NOUN:'名词',VERB:'动词',ADJ:'形容词',ADV:'副词',PROPN:'专有名词',PRON:'代词',ADP:'介词',DET:'限定词',AUX:'助动词',CCONJ:'并列连词',SCONJ:'从属连词',NUM:'数词',PART:'小品词',INTJ:'感叹词'};
@@ -121,7 +120,7 @@ function renderPassage(){
   closeLibrary();
 }
 
-function choosePassage(id){const index=archive.passages.findIndex(p=>p.id===id);if(index<0)return;currentIndex=index;try{localStorage.setItem(PASSAGE_KEY,id)}catch{}renderPassage();window.scrollTo({top:0,behavior:'smooth'})}
+function choosePassage(id){const index=archive.passages.findIndex(p=>p.id===id);if(index<0)return;currentIndex=index;renderPassage();window.scrollTo({top:0,behavior:'smooth'})}
 
 function renderTargetReview(){
   $('#review-list').innerHTML=renderReview(TARGET);
@@ -323,12 +322,13 @@ loadGrammarData().then(()=>{
   if(panel==='grammar'&&currentSentence)renderInspector();
 }).catch(error=>console.error('句法资料加载失败',error));
 
-Promise.all([fetch('./corpus.json').then(response=>{if(!response.ok)throw new Error('语料加载失败');return response.json()}),fetch('./frequency-full.json').then(response=>{if(!response.ok)throw new Error('整卷词频加载失败');return response.json()}),initReview()]).then(([data,frequency])=>{
+const reviewReady=initReview().then(()=>{renderTargetReview();$('#review-section').hidden=false}).catch(error=>{$('#review-section').hidden=false;$('#review-list').innerHTML=`<div class="load-error">题目加载失败：${escapeHTML(error.message)}。请刷新页面重试。</div>`;throw error});
+
+Promise.all([fetch('./corpus.json').then(response=>{if(!response.ok)throw new Error('语料加载失败');return response.json()}),fetch('./frequency-full.json').then(response=>{if(!response.ok)throw new Error('整卷词频加载失败');return response.json()}),reviewReady]).then(([data,frequency])=>{
   archive=data;fullFrequency=frequency;
   buildFormLemmaMap();
   $('#library-count').textContent=`${data.examCount} 套 · ${data.passageCount} 篇`;
-  const remembered=(()=>{try{return localStorage.getItem(PASSAGE_KEY)}catch{return null}})();
-  const initial=data.passages.findIndex(p=>p.id===(remembered||TARGET));
+  const initial=data.passages.findIndex(p=>p.id===TARGET);
   currentIndex=initial>=0?initial:0;
   renderPassage();renderMethod();
 }).catch(error=>{$('#passage-body').innerHTML=`<div class="load-error">资料加载失败：${escapeHTML(error.message)}。请刷新页面重试。</div>`});
