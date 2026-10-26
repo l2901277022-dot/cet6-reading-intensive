@@ -84,6 +84,7 @@ export async function initListening(element) {
   data = await response.json();
   render();
   root.addEventListener('click', event => {
+    if (event.target.closest('.review-word')) { event.preventDefault(); return; }
     const group = event.target.closest('[data-listen-group]');
     if (group) { current = Number(group.dataset.listenGroup); window.speechSynthesis?.cancel(); render(); root.scrollIntoView({behavior: 'smooth'}); return; }
     const lessonMode = event.target.closest('[data-listen-mode]');
