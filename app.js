@@ -1,4 +1,4 @@
-import {initReview, renderReview, handleReviewClick, handleReviewChange} from './review.js';
+import {initReview, renderReview, handleReviewClick, handleReviewChange} from './review.js?v=20261026-reading-translation-1';
 import {loadGrammarData, renderInteractiveGrammar, handleGrammarClick, grammarMethod} from './grammar.js';
 import {initListening} from './listening.js';
 
@@ -112,7 +112,7 @@ function renderPassage(){
   $('#paragraph-count').textContent=grouping(p).length;
   $('#source-link').href=p.url;
   $('#paragraph-source-link').href=p.paragraphSource||p.url;
-  const translationLabel=p.id===TARGET?'校订参考译文':'机器参考译文';
+  const translationLabel=p.id===TARGET?'校订参考译文':'语境重译';
   $('#passage-body').innerHTML=grouping(p).map(([from,to],i)=>`<section class="reading-block"><div class="block-number">${String(i+1).padStart(2,'0')}</div><div class="reading-content"><p>${p.sentences.slice(from,to).map((s,j)=>renderSentence(s,from+j)).join('')}</p><button class="translation-toggle" type="button" data-translation="${i}" aria-expanded="false" aria-controls="translation-${i}">查看译文 <span aria-hidden="true">⌄</span></button><div class="paragraph-translation" id="translation-${i}" hidden><span>第 ${i+1} 段 · ${translationLabel}</span><p>${escapeHTML(p.paragraphTranslations?.[i]||'译文暂缺')}</p></div></div></section>`).join('');
   $('#previous-passage').disabled=currentIndex===0;
   $('#next-passage').disabled=currentIndex===archive.passages.length-1;
@@ -306,7 +306,7 @@ function selectedText(){
 
 function renderMethod(){
   const exams=[...new Set(archive.passages.map(p=>p.exam))];
-  $('#method-content').innerHTML=`<span class="panel-kicker">SOURCES & METHOD</span><h2>资料与统计口径</h2><p>阅读正文取自<a href="${archive.sourceDirectory}" target="_blank" rel="noopener noreferrer">公开六级真题目录</a>，本站按年份、考次和 Passage One／Two 重新组织，只供个人精读复习。每篇标题处都有对应原题链接。</p><h3>整套真题词频</h3><p>${escapeHTML(fullFrequency.scope)}</p><p><strong>覆盖限制：</strong>${escapeHTML(fullFrequency.limitation)}</p><p>词形先还原为词元，再统计“出现于多少套试卷”和总词次；同一词在同一套多次出现，试卷数仍只计一套。每套的具体覆盖记录保存在公开数据文件中。</p><h3>词汇联想与句法</h3><p>中英释义、语法词形取自 MIT 许可的 <a href="https://github.com/skywind3000/ECDICT" target="_blank" rel="noopener noreferrer">ECDICT</a>。重点词另有词族联想、重要搭配、易混点和考点；其他词会列出本文语境中实际出现的搭配。${escapeHTML(grammarMethod())} 自动分析可能将引语、倒装、并列谓语或省略结构拆错，请结合原文核对。</p><h3>段落译文</h3><p>译文使用 Argos Translate 英中模型生成；2024 年 6 月第 2 套 Passage One 的段落译文和关键考题句另有校订。译文供理解参考，遇到歧义请以英文原文为准。</p><h3>29 套来源</h3><div class="method-sources">${exams.map(id=>{const p=archive.passages.find(x=>x.exam===id);return `<a href="${escapeHTML(p.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(editionLabel(p))} ↗</a>`}).join('')}</div>`;
+  $('#method-content').innerHTML=`<span class="panel-kicker">SOURCES & METHOD</span><h2>资料与统计口径</h2><p>阅读正文取自<a href="${archive.sourceDirectory}" target="_blank" rel="noopener noreferrer">公开六级真题目录</a>，本站按年份、考次和 Passage One／Two 重新组织，只供个人精读复习。每篇标题处都有对应原题链接。</p><h3>整套真题词频</h3><p>${escapeHTML(fullFrequency.scope)}</p><p><strong>覆盖限制：</strong>${escapeHTML(fullFrequency.limitation)}</p><p>词形先还原为词元，再统计“出现于多少套试卷”和总词次；同一词在同一套多次出现，试卷数仍只计一套。每套的具体覆盖记录保存在公开数据文件中。</p><h3>词汇联想与句法</h3><p>中英释义、语法词形取自 MIT 许可的 <a href="https://github.com/skywind3000/ECDICT" target="_blank" rel="noopener noreferrer">ECDICT</a>。重点词另有词族联想、重要搭配、易混点和考点；其他词会列出本文语境中实际出现的搭配。${escapeHTML(grammarMethod())} 自动分析可能将引语、倒装、并列谓语或省略结构拆错，请结合原文核对。</p><h3>段落译文</h3><p>正文、题干、选项和定位证据均按整篇语境重新翻译，并检查段落、题号和选项的对应关系。翻译会按中文语序处理习语、指代和长句层次；2024 年 6 月第 2 套 Passage One 保留原有校订译文。译文供理解参考，遇到歧义请以英文原文为准。</p><h3>29 套来源</h3><div class="method-sources">${exams.map(id=>{const p=archive.passages.find(x=>x.exam===id);return `<a href="${escapeHTML(p.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(editionLabel(p))} ↗</a>`}).join('')}</div>`;
 }
 
 function closeLibrary(){document.body.classList.remove('library-open');$('#mobile-library-button').setAttribute('aria-expanded','false')}
@@ -349,7 +349,7 @@ loadGrammarData().then(()=>{
 
 const reviewReady=initReview();
 
-Promise.all([fetch('./corpus.json').then(response=>{if(!response.ok)throw new Error('语料加载失败');return response.json()}),fetch('./frequency-full.json').then(response=>{if(!response.ok)throw new Error('整卷词频加载失败');return response.json()}),reviewReady]).then(([data,frequency])=>{
+Promise.all([fetch('./corpus.json?v=20261026-reading-translation-1').then(response=>{if(!response.ok)throw new Error('语料加载失败');return response.json()}),fetch('./frequency-full.json').then(response=>{if(!response.ok)throw new Error('整卷词频加载失败');return response.json()}),reviewReady]).then(([data,frequency])=>{
   archive=data;fullFrequency=frequency;
   buildFormLemmaMap();
   $('#library-count').textContent=`${data.examCount} 套 · ${data.passageCount} 篇`;

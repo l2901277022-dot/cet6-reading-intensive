@@ -16,7 +16,7 @@ function wordify(value) {
 }
 
 export async function initReview(url = new URL('./review-data.json', import.meta.url)) {
-  const responses = await Promise.all([fetch(url), fetch(new URL('./reading-questions.json', import.meta.url))]);
+  const responses = await Promise.all([fetch(url), fetch(new URL('./reading-questions.json?v=20261026-reading-translation-1', import.meta.url))]);
   if (!responses[0].ok || !responses[1].ok) throw new Error('阅读题目资料加载失败');
   [reviewData, readingQuestions] = await Promise.all(responses.map(response => response.json()));
   return readingQuestions;
