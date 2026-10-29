@@ -1,5 +1,5 @@
 import {initReview, renderReview, handleReviewClick, handleReviewChange} from './review.js?v=20261029-2023-june-audit-1';
-import {loadGrammarData, renderInteractiveGrammar, handleGrammarClick, grammarMethod} from './grammar.js?v=20261029-2023-june-audit-1';
+import {loadGrammarData, renderInteractiveGrammar, handleGrammarClick, grammarMethod} from './grammar.js?v=20261029-grammar-style-2';
 import {initListening} from './listening.js';
 
 const TARGET = 'cet6_2024_06_2_p1';
@@ -245,7 +245,7 @@ function fullWordCard(){
 }
 
 function grammarCard(){
-  if(!currentSentence)return `<div class="empty-panel"><div class="empty-illustration grammar-icon">S · V · O</div><span class="panel-kicker">SENTENCE LAB</span><h2>点击一句话</h2><p>选中正文中的一句，再点击不同颜色的语法片段，逐层查看结构、作用、规则、还原和例句。</p></div>`;
+  if(!currentSentence)return `<div class="empty-panel"><div class="empty-illustration grammar-icon">S · V · O</div><span class="panel-kicker">SENTENCE LAB</span><h2>点击一句话</h2><p>查看原句、参考翻译、句子主干、顺序拆解、重点语法与阅读技巧。</p></div>`;
   const study=article().id===TARGET?grammarStudyNotes[currentSentence.index]:null;
   return renderInteractiveGrammar(article(),currentSentence.index,study);
 }
