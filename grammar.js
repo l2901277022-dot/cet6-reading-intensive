@@ -36,14 +36,25 @@ function automaticNotes(segment) {
   return notes.slice(0, 6);
 }
 
+function noteList(notes = []) {
+  return notes.length ? `<ul class="grammar-word-notes">${notes.map(([term, note]) => `<li><strong>${esc(term)}</strong>：${esc(note)}</li>`).join('')}</ul>` : '';
+}
+
+function explanationBlock(block, nested = false) {
+  const tag = nested ? 'h5' : 'h5';
+  return `<section class="grammar-explanation-block">${block.title ? `<${tag}>${esc(block.title)}</${tag}>` : ''}${block.grammar ? `<p><strong>语法：</strong>${esc(block.grammar)}</p>` : ''}${(block.paragraphs || []).map(text => `<p>${esc(text)}</p>`).join('')}${noteList(block.notes)}${block.quote ? `<blockquote><span lang="en">${esc(block.quote[0])}</span>${block.quote[1] ? `<small>${esc(block.quote[1])}</small>` : ''}</blockquote>` : ''}${block.closing ? `<p>${esc(block.closing)}</p>` : ''}</section>`;
+}
+
 function segmentCard(segment, index) {
   const notes = segment.notes || automaticNotes(segment);
-  return `<article class="grammar-part-card">
-    <div class="grammar-part-heading"><span>${index + 1}</span><strong lang="en">${esc(segment.text.trim())}</strong></div>
-    <p><b>含义：</b>${esc(segment.zh || '结合全句译文理解。')}</p>
-    <p><b>结构：</b>${esc(segment.kind)}</p>
-    <p><b>作用：</b>${esc(segment.function)}</p>
-    ${notes.length ? `<ul class="grammar-word-notes">${notes.map(([term, note]) => `<li><strong>${esc(term)}</strong>：${esc(note)}</li>`).join('')}</ul>` : ''}
+  return `<article class="grammar-part-card grammar-markdown-part">
+    <h4><span>${index + 1}.</span> <span lang="en">${esc(segment.text.trim())}</span></h4>
+    <p><strong>语法：</strong>${esc(segment.grammar || segment.kind)}${/[。！？]$/.test(segment.grammar || segment.kind || '') ? '' : '。'}</p>
+    ${segment.meaning ? `<p>${esc(segment.meaning)}</p>` : `<p><strong>含义：</strong>${esc(segment.zh || '结合全句译文理解。')}</p>`}
+    ${segment.function ? `<p><strong>句中作用：</strong>${esc(segment.function)}</p>` : ''}
+    ${noteList(notes)}
+    ${(segment.blocks || []).map(block => explanationBlock(block)).join('')}
+    ${(segment.subsections || []).map((block, subIndex) => explanationBlock({...block, title: `${['①','②','③','④'][subIndex] || `${subIndex + 1}.`} ${block.title}`}, true)).join('')}
   </article>`;
 }
 
@@ -56,6 +67,8 @@ const collocationPatterns = [
   [/\bstruggl(?:e|es|ed|ing) to\b/i, 'struggle to do', '努力或艰难地做某事'],
   [/\b(?:be|am|is|are|was|were) supportive of\b/i, 'be supportive of', '支持……'],
   [/\brather than\b/i, 'rather than', '而不是……'],
+  [/\bturn(?:s|ed|ing)? out\b/i, 'turn out', '培养出、造就；具体含义依语境判断'],
+  [/\bcontribut(?:e|es|ed|ing) to\b/i, 'contribute to', '为……作贡献；促成……'],
   [/\bnot only\b[\s\S]*\bbut also\b/i, 'not only ... but also ...', '不但……而且……'],
   [/\b(?:be|am|is|are|was|were) likely to\b/i, 'be likely to do', '可能做某事'],
   [/\bproportion of\b/i, 'a proportion of', '……的比例或份额'],
@@ -97,6 +110,84 @@ const reviewedOverrides = {
       {text: 'even the youngest children', zh: '甚至连年龄最小的孩子', kind: '宾语名词短语', function: '整个短语作 condition 的宾语。', notes: [['even', '强调副词，意为“甚至、连……也”。'], ['youngest', '形容词最高级，修饰 children。'], ['children', '名词，作 condition 的宾语。']]}
     ],
     tip: '先把 take it for granted that ... 识别成整体：it 是形式宾语，that 从句才是真正宾语。'
+  },
+  'cet6_2023_06_2_p1:5': {
+    translation: '我们正在培养的是一个个小消费者，而不是懂得以自己对所在社会的贡献来衡量自身价值的年轻公民。',
+    backbone: [
+      {label: '主语', text: 'We'},
+      {label: '谓语', text: "are turning out"},
+      {label: '宾语', text: 'little consumers rather than young citizens'}
+    ],
+    parts: [
+      {
+        text: "We're turning out little consumers rather than young citizens",
+        grammar: '现在进行时 + rather than 对比结构。',
+        zh: '我们正在培养小小的消费者，而不是年轻的公民。',
+        function: '',
+        notes: [
+          ['We are turning out', '现在进行时，表示正在培养、造就。'],
+          ['turn out', '动词短语，表示“培养出、造就、生产出”。'],
+          ['little consumers', '宾语，意为“小小的消费者”。'],
+          ['rather than', '表示“而不是”，用于对比两种对象。']
+        ],
+        blocks: [
+          {
+            title: '重点表达：turn out',
+            paragraphs: ['这里不是“关掉”或“出去”，而是“培养出、造就”。', '例如：'],
+            quote: ['Schools should turn out responsible citizens.', '学校应该培养出有责任感的公民。']
+          },
+          {
+            title: '重点语法：rather than',
+            paragraphs: ['原句对比的是：'],
+            notes: [['little consumers', '小小的消费者'], ['young citizens', '年轻的公民']],
+            closing: '作者借此表达对儿童教育方向的对比。'
+          }
+        ]
+      },
+      {
+        text: 'who will value themselves for what they contribute to the society in which they live',
+        grammar: 'who 引导的定语从句，修饰 young citizens；从句内部还包含两个从句结构。',
+        meaning: '这一部分的意思是：他们会因为自己对所生活的社会作出的贡献而肯定自身的价值。',
+        function: '',
+        notes: [],
+        subsections: [
+          {
+            title: 'who will value themselves',
+            notes: [
+              ['who', '关系代词，引导定语从句，指代 young citizens，在从句中作主语。'],
+              ['will value', '一般将来时，表示“将会珍视、重视”。'],
+              ['themselves', '反身代词，作宾语，指代 who 所代表的年轻公民。']
+            ],
+            paragraphs: ['value themselves 在这里指“肯定自身的价值、重视自身”。']
+          },
+          {
+            title: 'for what they contribute to the society',
+            grammar: 'what 引导的名词性从句，作介词 for 的宾语。',
+            notes: [
+              ['for', '介词，表示原因或依据。'],
+              ['what they contribute to the society', '意为“他们对社会作出的贡献”。'],
+              ['what', '相当于 the things that，意为“……的东西或内容”，同时在从句中作 contribute to 的宾语。'],
+              ['they', '从句主语。'],
+              ['contribute to', '固定搭配，表示“为……作贡献”。']
+            ],
+            paragraphs: ['这里可以理解为：'],
+            quote: ['They will value themselves for their contributions to society.', '他们会因为自己对社会的贡献而肯定自身的价值。']
+          },
+          {
+            title: 'in which they live',
+            grammar: 'which 引导的定语从句，修饰 the society。',
+            notes: [
+              ['in which', '相当于 in the society 中的 in + which。'],
+              ['they', '从句主语。'],
+              ['live', '从句谓语。']
+            ],
+            paragraphs: ['live in the society 表示“生活在这个社会中”。society 被关系代词 which 替代后，介词 in 保留在关系代词前面，形成 in which。', '也可以写成：'],
+            quote: ['the society which they live in', '两者意思相同，in which 更正式。']
+          }
+        ]
+      }
+    ],
+    tip: '先读主句 We are turning out ...，再把 who 引导的定语从句单独拆开；从句中继续识别 what 名词性从句和 in which 定语从句。'
   }
 };
 

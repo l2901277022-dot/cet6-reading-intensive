@@ -1,5 +1,5 @@
 import {initReview, renderReview, handleReviewClick, handleReviewChange} from './review.js?v=20261029-2023-june-audit-1';
-import {loadGrammarData, renderInteractiveGrammar, handleGrammarClick, grammarMethod} from './grammar.js?v=20261029-grammar-style-3';
+import {loadGrammarData, renderInteractiveGrammar, handleGrammarClick, grammarMethod} from './grammar.js?v=20261029-grammar-style-4';
 import {initListening} from './listening.js';
 
 const TARGET = 'cet6_2024_06_2_p1';
