@@ -349,7 +349,7 @@ loadGrammarData().then(()=>{
 
 const reviewReady=initReview();
 
-Promise.all([fetch('./corpus.json?v=20261026-reading-translation-1').then(response=>{if(!response.ok)throw new Error('语料加载失败');return response.json()}),fetch('./frequency-full.json').then(response=>{if(!response.ok)throw new Error('整卷词频加载失败');return response.json()}),reviewReady]).then(([data,frequency])=>{
+Promise.all([fetch('./corpus.json?v=20261029-2023-june-audit-1').then(response=>{if(!response.ok)throw new Error('语料加载失败');return response.json()}),fetch('./frequency-full.json?v=20261029-2023-june-audit-1').then(response=>{if(!response.ok)throw new Error('整卷词频加载失败');return response.json()}),reviewReady]).then(([data,frequency])=>{
   archive=data;fullFrequency=frequency;
   buildFormLemmaMap();
   $('#library-count').textContent=`${data.examCount} 套 · ${data.passageCount} 篇`;

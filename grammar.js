@@ -1,7 +1,7 @@
 let grammarData;
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 
-export async function loadGrammarData(url = new URL('./grammar-data.json', import.meta.url)) {
+export async function loadGrammarData(url = new URL('./grammar-data.json?v=20261029-2023-june-audit-1', import.meta.url)) {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Grammar data: HTTP ${response.status}`);
   grammarData = await response.json();

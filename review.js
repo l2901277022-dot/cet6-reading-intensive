@@ -16,7 +16,7 @@ function wordify(value) {
 }
 
 export async function initReview(url = new URL('./review-data.json', import.meta.url)) {
-  const responses = await Promise.all([fetch(url), fetch(new URL('./reading-questions.json?v=20261026-reading-translation-1', import.meta.url))]);
+  const responses = await Promise.all([fetch(url), fetch(new URL('./reading-questions.json?v=20261029-2023-june-audit-1', import.meta.url))]);
   if (!responses[0].ok || !responses[1].ok) throw new Error('阅读题目资料加载失败');
   [reviewData, readingQuestions] = await Promise.all(responses.map(response => response.json()));
   return readingQuestions;
@@ -48,8 +48,11 @@ function generalExplanation(question, record) {
 function renderGeneralReview(passageId) {
   const record = readingQuestions?.passages?.[passageId];
   if (!record) return '<div class="load-error">本篇题目资料暂缺。</div>';
+  const translationNote = record.translationReviewed
+    ? '正文、题目和选项译文已按全文语境校订；定位和选项判断以原文为准。'
+    : '题目英译中为机器辅助参考译文；定位和选项判断以原文为准。';
   return `<p class="review-intro">每篇五道原题。先选答案，再分别展开题目翻译和答案解析；其他词汇也可点击查看。</p>
-    <p class="review-source"><a href="${esc(record.questionSource)}" target="_blank" rel="noopener noreferrer">查看原试卷 ↗</a> · <a href="${esc(record.answerSource)}" target="_blank" rel="noopener noreferrer">核对参考答案 ↗</a><span>题目英译中为机器辅助参考译文；定位和选项判断以原文为准。</span></p>
+    <p class="review-source"><a href="${esc(record.questionSource)}" target="_blank" rel="noopener noreferrer">查看原试卷 ↗</a> · <a href="${esc(record.answerSource)}" target="_blank" rel="noopener noreferrer">核对参考答案 ↗</a><span>${translationNote}</span></p>
     ${record.questions.map(question => `<article class="review-question" data-review-question="${question.number}" data-review-passage="${esc(passageId)}"><div class="review-question-head"><div class="review-question-meta"><span class="review-question-number">${question.number}</span><span>原题与选项 · ${esc(question.type || '阅读理解')}</span></div><div class="review-actions"><button type="button" data-review-toggle="translation" data-question="${question.number}" aria-expanded="false" aria-controls="review-translation-${question.number}">翻译</button><button type="button" class="review-explain-button" data-review-toggle="explanation" data-question="${question.number}" aria-expanded="false" aria-controls="review-explanation-${question.number}">答案与详细解析</button></div></div>
       <fieldset class="review-choices"><legend lang="en">${wordify(question.stem)}</legend>${question.options.map(option => `<label class="review-choice" data-review-option><input type="radio" name="review-${question.number}" value="${esc(option.key)}" aria-label="第 ${question.number} 题选 ${esc(option.key)}"><span class="review-choice-key">${esc(option.key)}</span><span lang="en">${wordify(option.text)}</span></label>`).join('')}</fieldset>
       <div class="review-translation" id="review-translation-${question.number}" hidden><h4>题干与选项翻译</h4><p>${esc(question.stemZh)}</p><ol type="A">${question.options.map(option => `<li>${esc(option.translation)}</li>`).join('')}</ol></div>
